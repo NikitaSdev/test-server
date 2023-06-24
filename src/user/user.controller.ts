@@ -10,7 +10,12 @@ import {
   Put
 } from "@nestjs/common"
 import { UserService } from "./user.service"
-import { SendFriendRequestDto, UpdateProfileDto } from "./dto/user.dto"
+import {
+  DeedDto,
+  SendFriendRequestDto,
+  UpdateDeedDto,
+  UpdateProfileDto
+} from "./dto/user.dto"
 
 @Controller("users")
 export class UserController {
@@ -41,12 +46,31 @@ export class UserController {
     return this.userService.delete(id)
   }
 
-  @Get(":name")
+  @Get("findUser/:name")
   async getUser(@Param("name") name: string) {
     return this.userService.byName(name)
   }
-  @Patch("Profile")
+  @Get("anotherUser")
+  async getAnotherUserProfile(
+    @Param("yourId") yourId: string,
+    @Param("anotherUserId") anotherUserId: string
+  ) {
+    return this.userService.getAnotherUserProfile(yourId, anotherUserId)
+  }
+  @Patch("profile")
   async updateProfile(@Body() dto: UpdateProfileDto) {
     return this.userService.updateProfile(dto)
+  }
+  @Post("deed")
+  async createDeed(@Body() dto: DeedDto) {
+    return this.userService.createDeed(dto)
+  }
+  @Patch("deed")
+  async updateDeed(@Body() dto: UpdateDeedDto) {
+    return this.userService.updateDeed(dto)
+  }
+  @Delete("deed")
+  async deleteDeed(@Body("deedId") deedId: number) {
+    return this.userService.deleteDeed(deedId)
   }
 }

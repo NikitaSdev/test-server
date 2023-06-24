@@ -33,8 +33,8 @@ export class User {
   sentFriendRequests: FriendRequest[]
   @ManyToMany((type) => User, (friends) => friends.friends)
   friends: User[]
-  @OneToMany((type) => User, (deeds) => deeds.deeds)
-  deeds: Deeds[]
+  @ManyToOne(() => Deed, (deed) => deed.user)
+  deeds: Deed[]
 }
 @Entity()
 export class FriendRequest {
@@ -69,28 +69,15 @@ export class Friends {
 }
 
 @Entity()
-export class Deeds {
-  @PrimaryGeneratedColumn()
-  id: number
-
-  @ManyToOne(() => User, (user) => user.deeds)
-  user: User
-
-  @OneToMany(() => Deed, (deed) => deed.deeds)
-  deeds: Deed[]
-}
-
-@Entity()
 export class Deed {
   @PrimaryGeneratedColumn()
   id: number
-
+  @ManyToOne(() => User, (user) => user.deeds)
+  user: User
   @Column()
   title: string
-
   @Column()
   description: string
-
-  @ManyToOne(() => Deeds, (deeds) => deeds.deeds)
-  deeds: Deeds
+  @CreateDateColumn()
+  createdAt: Date
 }

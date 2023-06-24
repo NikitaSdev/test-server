@@ -19,3 +19,19 @@ export class UpdateProfileDto {
   @IsString()
   name: string
 }
+export class DeedDto {
+  @IsNumber()
+  userId: number
+  @IsString()
+  title: string
+  @IsString()
+  description: string
+}
+export class UpdateDeedDto {
+  @IsNumber()
+  deedId: number
+  @IsString()
+  title: string
+  @IsString()
+  description: string
+}

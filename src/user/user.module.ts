@@ -4,11 +4,11 @@ import { UserController } from "./user.controller"
 import { ConfigModule } from "@nestjs/config"
 
 import { TypeOrmModule } from "@nestjs/typeorm"
-import { Deed, Deeds, FriendRequest, Friends, User } from "./user.entity"
+import { Deed, FriendRequest, Friends, User } from "./user.entity"
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, FriendRequest, Friends, Deeds, Deed]),
+    TypeOrmModule.forFeature([User, FriendRequest, Friends, Deed]),
     ConfigModule
   ],
   providers: [UserService],
