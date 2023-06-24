@@ -4,11 +4,11 @@ import { TypeOrmModule } from "@nestjs/typeorm"
 import * as process from "process"
 import { AuthModule } from "./auth/auth.module"
 import { UserModule } from "./user/user.module"
-import {User} from "./user/user.entity";
+import { User } from "./user/user.entity"
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath:".env" }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: ".env" }),
     TypeOrmModule.forRoot({
       type: "postgres",
       host: process.env.POSTGRES_HOST,
@@ -18,10 +18,10 @@ import {User} from "./user/user.entity";
       database: process.env.POSTGRES_DB,
       autoLoadEntities: true,
       synchronize: true,
-      entities:[User]
+      entities: [User]
     }),
     AuthModule,
     UserModule
-  ],
+  ]
 })
 export class AppModule {}

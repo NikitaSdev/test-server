@@ -3,18 +3,23 @@ import {
   Injectable,
   NotFoundException
 } from "@nestjs/common"
-import { FriendRequest, User } from "./user.entity"
+import { Deed, Deeds, FriendRequest, Friends, User } from "./user.entity"
 import { InjectRepository } from "@nestjs/typeorm"
-import { getRepository, Repository } from "typeorm"
+import { Repository } from "typeorm"
 import { SendFriendRequestDto, UpdateProfileDto } from "./dto/user.dto"
-import { populateDependencyGraph } from "ts-loader/dist/utils"
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
     @InjectRepository(FriendRequest)
-    private readonly friendRequestRepository: Repository<FriendRequest>
+    private readonly friendRequestRepository: Repository<FriendRequest>,
+    @InjectRepository(Friends)
+    private readonly friendsRepository: Repository<Friends>,
+    @InjectRepository(Deeds)
+    private readonly DeedsRepository: Repository<Deeds>,
+    @InjectRepository(Deed)
+    private readonly DeedRepository: Repository<Deed>
   ) {}
 
   async byName(name: string) {
@@ -62,17 +67,40 @@ export class UserService {
     return await this.friendRequestRepository.save(friendRequest)
   }
 
-  async acceptFriendRequest(receiverId: number) {}
+  async acceptFriendRequest(requestId: number) {
+    const friendRequest = await this.friendRequestRepository.findOne({
+      where: { id: requestId }
+    })
 
-  async declineFriendRequest(requestId: number) {}
+    await this.friendRequestRepository.update(requestId, {
+      status: "accepted"
+    })
+
+    const friendsEntity = new Friends()
+    friendsEntity.user = friendRequest.sender
+    friendsEntity.friends = [friendRequest.receiver]
+    await this.friendsRepository.save(friendsEntity)
+  }
+
+  async declineFriendRequest(requestId: number) {
+    await this.friendRequestRepository.update(requestId, {
+      status: "declined"
+    })
+  }
+
+  async createDeed() {}
 
   async updateProfile(dto: UpdateProfileDto) {
     const user = await this.usersRepository.findOne({ where: { id: dto.id } })
     if (!user) throw new BadRequestException("Пользователь не найден")
-    dto.wrapperURL && (user.wrapperURL = dto.wrapperURL)
-    dto.avatarURL && (user.avatarURL = dto.avatarURL)
-    dto.name && (user.name = dto.name)
+
+    await this.usersRepository.update(user, {
+      wrapperURL: dto.wrapperURL || user.wrapperURL,
+      avatarURL: dto.avatarURL || user.avatarURL,
+      name: dto.name || user.name
+    })
   }
+
   async delete(id: number) {
     return {
       user: await this.usersRepository.findOne({ where: { id: id } }),
