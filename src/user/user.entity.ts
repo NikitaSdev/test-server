@@ -23,6 +23,8 @@ export class User {
   email: string
   @Column()
   password: string
+  @Column({ default: "О Вас" })
+  description: string
   @Column({ default: "/uploads/wrappers/default.jpg" })
   wrapperURL: string
   @Column({ default: "/uploads/avatars/default.jpg" })

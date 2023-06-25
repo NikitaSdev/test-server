@@ -36,14 +36,22 @@ export class UserService {
   async getAll() {
     return this.usersRepository.find()
   }
-  async getAnotherUserProfile(yourId, anotherUserId) {
-    // const you = await this.friendsRepository.findOne({ where: { id: yourId } })
-    // const anotherUser = await this.usersRepository.findOne({
-    //   where: { id: anotherUserId },
-    //   relations: ["friends"]
-    // })
-    // console.log(you)
-    // // if (you.friends && you.friends.includes(anotherUser)) return anotherUser
+  async getAnotherUserProfile(yourId: number, anotherUserId: number) {
+    const you = await this.usersRepository.findOne({
+      where: { id: yourId },
+      relations: ["friends", "deeds"]
+    })
+    const anotherUser = await this.usersRepository.findOne({
+      where: { id: anotherUserId },
+      relations: ["friends", "deeds"]
+    })
+
+    const friendIds = you.friends.map((friend) => friend.id)
+    if (friendIds.includes(anotherUserId)) {
+      return { ...anotherUser, deeds: anotherUser.deeds }
+    } else {
+      throw new BadRequestException("Доступ запрещен")
+    }
   }
   async getReceivers(id: number) {
     const sender = await this.usersRepository.findOne({ where: { id: id } })
@@ -61,7 +69,7 @@ export class UserService {
     const receiver = await this.usersRepository.findOne({
       where: { id: dto.receiverId }
     })
-
+    if (!receiver) throw new BadRequestException("Получатель не найден")
     await this.friendRequestRepository.delete({
       sender,
       receiver
@@ -88,15 +96,15 @@ export class UserService {
     ])
 
     if (!user) {
-      throw new BadRequestException("User not found")
+      throw new BadRequestException("Пользователь не найден")
     }
 
     if (!friend) {
-      throw new BadRequestException("Friend not found")
+      throw new BadRequestException("Друг не найден")
     }
 
     if (user.friends.some((fr) => fr.id === friend.id)) {
-      throw new BadRequestException("Already friends")
+      throw new BadRequestException("Вы уже друзья")
     }
 
     user.friends.push(friend)
@@ -133,10 +141,16 @@ export class UserService {
         id: dto.deedId
       }
     })
+    if (!deed) throw new BadRequestException("Доброе дело не найдено")
     return await this.deedRepository.update(deed, {
       description: dto.description || deed.description,
       title: dto.title || deed.title
     })
+  }
+  async getDeed(userId: number) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } })
+    if (!user) throw new BadRequestException("Пользователь не найден")
+    return await this.deedRepository.find({ where: { user: user } })
   }
   async deleteDeed(deedId: number) {
     return await this.deedRepository.delete({ id: deedId })

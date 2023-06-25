@@ -55,8 +55,8 @@ export class UserController {
   }
   @Get("anotherUser")
   async getAnotherUserProfile(
-    @Param("yourId") yourId: string,
-    @Param("anotherUserId") anotherUserId: string
+    @Body("yourId") yourId: number,
+    @Body("anotherUserId") anotherUserId: number
   ) {
     return this.userService.getAnotherUserProfile(yourId, anotherUserId)
   }
@@ -67,6 +67,10 @@ export class UserController {
   @Post("deed")
   async createDeed(@Body() dto: DeedDto) {
     return this.userService.createDeed(dto)
+  }
+  @Get("deed")
+  async getDeeds(@Body("userId") userId: number) {
+    return this.userService.getDeed(userId)
   }
   @Patch("deed")
   async updateDeed(@Body() dto: UpdateDeedDto) {
