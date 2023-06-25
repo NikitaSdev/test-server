@@ -27,23 +27,28 @@ export class User {
   wrapperURL: string
   @Column({ default: "/uploads/avatars/default.jpg" })
   avatarURL: string
-  @OneToMany((type) => FriendRequest, (friendRequest) => friendRequest.receiver)
+  @OneToMany(() => FriendRequest, (friendRequest) => friendRequest.receiver)
   receivedFriendRequests: FriendRequest[]
-  @OneToMany((type) => FriendRequest, (friendRequest) => friendRequest.sender)
+
+  @OneToMany(() => FriendRequest, (friendRequest) => friendRequest.sender)
   sentFriendRequests: FriendRequest[]
-  @ManyToMany((type) => User, (friends) => friends.friends)
+
+  @ManyToMany(() => User, (user) => user.friends)
+  @JoinTable()
   friends: User[]
-  @ManyToOne(() => Deed, (deed) => deed.user)
+
+  @OneToMany(() => Deed, (deed) => deed.user)
   deeds: Deed[]
 }
+
 @Entity()
 export class FriendRequest {
   @PrimaryGeneratedColumn()
   id: number
-  @ManyToOne((type) => User, (sender) => sender.sentFriendRequests)
+  @ManyToOne(() => User, (user) => user.sentFriendRequests)
   sender: User
 
-  @ManyToOne((type) => User, (receiver) => receiver.receivedFriendRequests)
+  @ManyToOne(() => User, (user) => user.receivedFriendRequests)
   receiver: User
 
   @CreateDateColumn()
@@ -51,21 +56,6 @@ export class FriendRequest {
 
   @Column()
   status: "pending" | "accepted" | "declined"
-}
-
-@Entity()
-export class Friends {
-  @PrimaryGeneratedColumn()
-  id: number
-  @ManyToMany(() => User, (user) => user.friends)
-  user: User
-  @ManyToMany(() => User, { cascade: true })
-  @JoinTable({
-    name: "friend_connections",
-    joinColumn: { referencedColumnName: "id" },
-    inverseJoinColumn: { referencedColumnName: "id" }
-  })
-  friends: User[]
 }
 
 @Entity()

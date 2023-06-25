@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException
 } from "@nestjs/common"
-import { Deed, FriendRequest, Friends, User } from "./user.entity"
+import { Deed, FriendRequest, User } from "./user.entity"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Repository } from "typeorm"
 import {
@@ -19,8 +19,6 @@ export class UserService {
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
     @InjectRepository(FriendRequest)
     private readonly friendRequestRepository: Repository<FriendRequest>,
-    @InjectRepository(Friends)
-    private readonly friendsRepository: Repository<Friends>,
     @InjectRepository(Deed)
     private readonly deedRepository: Repository<Deed>
   ) {}
@@ -39,13 +37,13 @@ export class UserService {
     return this.usersRepository.find()
   }
   async getAnotherUserProfile(yourId, anotherUserId) {
-    const you = await this.friendsRepository.findOne({ where: { id: yourId } })
-    const anotherUser = await this.usersRepository.findOne({
-      where: { id: anotherUserId },
-      relations: ["friends"]
-    })
-    console.log(you)
-    if (you.friends && you.friends.includes(anotherUser)) return anotherUser
+    // const you = await this.friendsRepository.findOne({ where: { id: yourId } })
+    // const anotherUser = await this.usersRepository.findOne({
+    //   where: { id: anotherUserId },
+    //   relations: ["friends"]
+    // })
+    // console.log(you)
+    // // if (you.friends && you.friends.includes(anotherUser)) return anotherUser
   }
   async getReceivers(id: number) {
     const sender = await this.usersRepository.findOne({ where: { id: id } })
@@ -77,20 +75,36 @@ export class UserService {
     return await this.friendRequestRepository.save(friendRequest)
   }
 
-  async acceptFriendRequest(requestId: number) {
-    const friendRequest = await this.friendRequestRepository.findOne({
-      where: { id: requestId },
-      relations: ["receiver", "sender"]
-    })
+  async acceptFriendRequest(userId: number, friendId: number) {
+    const [user, friend] = await Promise.all([
+      this.usersRepository.findOne({
+        where: { id: userId },
+        relations: ["friends"]
+      }),
+      this.usersRepository.findOne({
+        where: { id: friendId },
+        relations: ["friends"]
+      })
+    ])
 
-    await this.friendRequestRepository.update(friendRequest, {
-      status: "accepted"
-    })
+    if (!user) {
+      throw new BadRequestException("User not found")
+    }
 
-    const friendsEntity = new Friends()
-    friendsEntity.user = friendRequest.sender
-    friendsEntity.friends = [friendRequest.receiver]
-    return await this.friendsRepository.save(friendsEntity)
+    if (!friend) {
+      throw new BadRequestException("Friend not found")
+    }
+
+    if (user.friends.some((fr) => fr.id === friend.id)) {
+      throw new BadRequestException("Already friends")
+    }
+
+    user.friends.push(friend)
+    friend.friends.push(user)
+
+    await this.usersRepository.save([user, friend])
+
+    return true
   }
 
   async declineFriendRequest(requestId: number) {

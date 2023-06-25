@@ -34,8 +34,11 @@ export class UserController {
     return this.userService.sendFriendRequest(dto)
   }
   @Post("acceptFriendRequest")
-  async acceptFriendRequest(@Body("requestId") requestId: number) {
-    return this.userService.acceptFriendRequest(requestId)
+  async acceptFriendRequest(
+    @Body("userId") userId: number,
+    @Body("friendId") friendId: number
+  ) {
+    return this.userService.acceptFriendRequest(userId, friendId)
   }
   @Post("declineFriendRequest")
   async declineFriendRequest(@Body("requestId") requestId: number) {
