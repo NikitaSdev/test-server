@@ -8,8 +8,6 @@ node_modules
 
 
 
-.env
-
 Dockerfile
 README.md
 tslint.json

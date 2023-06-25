@@ -5,6 +5,7 @@ import * as process from "process"
 import { AuthModule } from "./auth/auth.module"
 import { UserModule } from "./user/user.module"
 import { User } from "./user/user.entity"
+import { FileModule } from "./file/file.module"
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { User } from "./user/user.entity"
       entities: [User]
     }),
     AuthModule,
-    UserModule
+    UserModule,
+    FileModule
   ]
 })
 export class AppModule {}
