@@ -30,18 +30,19 @@ export class AuthService {
   }
   async register(dto: AuthDto) {
     const sameUser = await this.usersRepository
-        .createQueryBuilder("user")
-        .where("user.email = :email OR user.login = :login", {
-          email: dto.email, login:dto.login
-        })
-        .getOne()
-    if(sameUser) throw new BadRequestException("Пользователь уже существует")
+      .createQueryBuilder("user")
+      .where("user.email = :email OR user.login = :login", {
+        email: dto.email,
+        login: dto.login
+      })
+      .getOne()
+    if (sameUser) throw new BadRequestException("Пользователь уже существует")
     const salt = await genSalt()
     const newUser = new User()
     newUser.login = dto.login
     newUser.email = dto.email
     newUser.name = dto.name
-    newUser.password = await hash(dto.password,salt)
+    newUser.password = await hash(dto.password, salt)
     await this.usersRepository.save(newUser)
     const tokens = await this.issueTokenPair(String(newUser.id))
     return {
@@ -82,9 +83,11 @@ export class AuthService {
       id: user.id,
       login: user.login,
       email: user.email,
-      friends:user.friends,
-      receivedFriendRequests:user.receivedFriendRequests,
-      sentFriendRequests:user.sentFriendRequests
+      name: user.name,
+      friends: user.friends,
+      avatarURL: user.avatarURL,
+      receivedFriendRequests: user.receivedFriendRequests,
+      sentFriendRequests: user.sentFriendRequests
     }
   }
   async getNewTokens({ refreshToken }: RefreshTokenDto) {

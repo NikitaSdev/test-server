@@ -53,6 +53,9 @@ export class UserService {
       throw new BadRequestException("Доступ запрещен")
     }
   }
+  async getUsersCount() {
+    return await this.usersRepository.count()
+  }
   async getReceivers(id: number) {
     const sender = await this.usersRepository.findOne({ where: { id: id } })
     return await this.friendRequestRepository.find({
@@ -151,6 +154,9 @@ export class UserService {
     const user = await this.usersRepository.findOne({ where: { id: userId } })
     if (!user) throw new BadRequestException("Пользователь не найден")
     return await this.deedRepository.find({ where: { user: user } })
+  }
+  async getDeedsCount() {
+    return await this.deedRepository.count()
   }
   async deleteDeed(deedId: number) {
     return await this.deedRepository.delete({ id: deedId })

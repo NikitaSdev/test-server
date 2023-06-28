@@ -53,6 +53,10 @@ export class UserController {
   async getUser(@Param("name") name: string) {
     return this.userService.byName(name)
   }
+  @Get("users-count")
+  async getUsersCount() {
+    return this.userService.getUsersCount()
+  }
   @Get("anotherUser")
   async getAnotherUserProfile(
     @Body("yourId") yourId: number,
@@ -71,6 +75,10 @@ export class UserController {
   @Get("deed")
   async getDeeds(@Body("userId") userId: number) {
     return this.userService.getDeed(userId)
+  }
+  @Get("deed-count")
+  async getDeedCount() {
+    return this.userService.getDeedsCount()
   }
   @Patch("deed")
   async updateDeed(@Body() dto: UpdateDeedDto) {
