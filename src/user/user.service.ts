@@ -153,7 +153,12 @@ export class UserService {
   async getDeed(userId: number) {
     const user = await this.usersRepository.findOne({ where: { id: userId } })
     if (!user) throw new BadRequestException("Пользователь не найден")
-    return await this.deedRepository.find({ where: { user: user } })
+    return await this.deedRepository.find({
+      where: { user: user },
+      order: {
+        createdAt: "DESC"
+      }
+    })
   }
   async getDeedsCount() {
     return await this.deedRepository.count()
