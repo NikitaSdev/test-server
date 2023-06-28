@@ -95,14 +95,14 @@ export class UserService {
     return await this.friendRequestRepository.save(friendRequest)
   }
 
-  async acceptFriendRequest(userId: number, friendId: number) {
+  async acceptFriendRequest(userId: number, senderId: number) {
     const [user, friend] = await Promise.all([
       this.usersRepository.findOne({
         where: { id: userId },
         relations: ["friends"]
       }),
       this.usersRepository.findOne({
-        where: { id: friendId },
+        where: { id: senderId },
         relations: ["friends"]
       })
     ])
@@ -124,15 +124,15 @@ export class UserService {
 
     await this.usersRepository.save([user, friend])
 
-    return true
+    await this.friendRequestRepository.delete({
+      sender: friend,
+      receiver: user
+    })
   }
 
   async declineFriendRequest(requestId: number) {
-    const friendRequest = await this.friendRequestRepository.findOne({
-      where: { id: requestId }
-    })
-    return await this.friendRequestRepository.update(friendRequest, {
-      status: "declined"
+    return await this.friendRequestRepository.delete({
+      id: requestId
     })
   }
 
