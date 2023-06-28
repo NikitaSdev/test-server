@@ -25,9 +25,13 @@ export class UserController {
   async getAll() {
     return this.userService.getAll()
   }
-  @Get("receivers")
+  @Get("user")
+  async byId(@Body("id") id: number) {
+    return this.userService.byId(id)
+  }
+  @Get("friend-requests")
   async getFriendRequests(@Body("id") id: number) {
-    return this.userService.getReceivers(id)
+    return this.userService.getFriendRequests(id)
   }
   @Post("sendFriendRequest")
   async sendFriendRequest(@Body() dto: SendFriendRequestDto) {

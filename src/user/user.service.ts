@@ -32,7 +32,16 @@ export class UserService {
     }
     return user
   }
-
+  async byId(id: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id: id }
+    })
+    console.log(id)
+    if (!user) {
+      throw new NotFoundException("Пользователь не найден")
+    }
+    return user
+  }
   async getAll() {
     return this.usersRepository.find()
   }
@@ -56,13 +65,13 @@ export class UserService {
   async getUsersCount() {
     return await this.usersRepository.count()
   }
-  async getReceivers(id: number) {
-    const sender = await this.usersRepository.findOne({ where: { id: id } })
+  async getFriendRequests(id: number) {
+    const receiver = await this.usersRepository.findOne({ where: { id: id } })
     return await this.friendRequestRepository.find({
       where: {
-        sender: sender
+        receiver: receiver
       },
-      relations: ["receiver"]
+      relations: ["sender"]
     })
   }
   async sendFriendRequest(dto: SendFriendRequestDto) {
