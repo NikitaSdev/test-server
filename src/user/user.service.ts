@@ -24,7 +24,7 @@ export class UserService {
   ) {}
 
   async byName(name: string) {
-    const user = await this.usersRepository.findOne({
+    const user = await this.usersRepository.find({
       where: { name: name }
     })
     if (!user) {
@@ -72,6 +72,15 @@ export class UserService {
   }
   async getUsersCount() {
     return await this.usersRepository.count()
+  }
+  async getSentFriendRequests(id: number) {
+    const sender = await this.usersRepository.findOne({ where: { id: id } })
+    return await this.friendRequestRepository.find({
+      where: {
+        sender: sender
+      },
+      relations: ["receiver"]
+    })
   }
   async getFriendRequests(id: number) {
     const receiver = await this.usersRepository.findOne({ where: { id: id } })

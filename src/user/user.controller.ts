@@ -7,7 +7,8 @@ import {
   Param,
   Patch,
   Post,
-  Put
+  Put,
+  Query
 } from "@nestjs/common"
 import { UserService } from "./user.service"
 import {
@@ -33,6 +34,10 @@ export class UserController {
   async sendFriendRequest(@Body() dto: SendFriendRequestDto) {
     return this.userService.sendFriendRequest(dto)
   }
+  @Post("getSentFriendRequests")
+  async getSentFriendRequests(@Body("id") id: number) {
+    return this.userService.getSentFriendRequests(id)
+  }
   @Post("acceptFriendRequest")
   async acceptFriendRequest(
     @Body("userId") userId: number,
@@ -56,8 +61,8 @@ export class UserController {
     return this.userService.deleteFriend(userId, friendId)
   }
 
-  @Get("findUser/:name")
-  async getUser(@Param("name") name: string) {
+  @Get("findUser")
+  async getUser(@Query("name") name: string) {
     return this.userService.byName(name)
   }
   @Get("users-count")
