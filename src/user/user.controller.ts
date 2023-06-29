@@ -21,11 +21,7 @@ import {
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get()
-  async getAll() {
-    return this.userService.getAll()
-  }
-  @Get("user")
+  @Post("user")
   async byId(@Body("id") id: number) {
     return this.userService.byId(id)
   }
@@ -52,6 +48,13 @@ export class UserController {
   async deleteUser(@Body("id") id: number) {
     return this.userService.delete(id)
   }
+  @Delete("friend")
+  async deleteFriend(
+    @Body("userId") userId: number,
+    @Body("friendId") friendId: number
+  ) {
+    return this.userService.deleteFriend(userId, friendId)
+  }
 
   @Get("findUser/:name")
   async getUser(@Param("name") name: string) {
@@ -61,7 +64,7 @@ export class UserController {
   async getUsersCount() {
     return this.userService.getUsersCount()
   }
-  @Get("anotherUser")
+  @Post("anotherUser")
   async getAnotherUserProfile(
     @Body("yourId") yourId: number,
     @Body("anotherUserId") anotherUserId: number

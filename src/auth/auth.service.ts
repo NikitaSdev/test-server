@@ -99,7 +99,8 @@ export class AuthService {
       throw new UnauthorizedException("Invalid token or expired")
     }
     const user = await this.usersRepository.findOne({
-      where: { id: result.id }
+      where: { id: result.id },
+      relations: ["friends"]
     })
     const tokens = await this.issueTokenPair(String(user.id))
     return {

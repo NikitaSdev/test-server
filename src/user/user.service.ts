@@ -34,32 +34,38 @@ export class UserService {
   }
   async byId(id: number) {
     const user = await this.usersRepository.findOne({
-      where: { id: id }
+      where: { id: id },
+      relations: ["friends"]
     })
-    console.log(id)
     if (!user) {
       throw new NotFoundException("Пользователь не найден")
     }
     return user
   }
-  async getAll() {
-    return this.usersRepository.find()
-  }
   async getAnotherUserProfile(yourId: number, anotherUserId: number) {
     const you = await this.usersRepository.findOne({
       where: { id: yourId },
-      relations: ["friends", "deeds"]
+      relations: ["friends"]
     })
     const anotherUser = await this.usersRepository.findOne({
       where: { id: anotherUserId },
-      relations: ["friends", "deeds"]
+      relations: ["friends"]
     })
 
     const friendIds = you.friends.map((friend) => friend.id)
+
     if (friendIds.includes(anotherUserId)) {
-      return { ...anotherUser, deeds: anotherUser.deeds }
+      const deeds = await this.deedRepository.find({
+        where: { user: anotherUser }
+      })
+      console.log(deeds)
+      return {
+        name: anotherUser.name,
+        description: anotherUser.description,
+        deeds
+      }
     } else {
-      throw new BadRequestException("Доступ запрещен")
+      return { name: anotherUser.name, description: anotherUser.description }
     }
   }
   async getUsersCount() {
@@ -81,6 +87,7 @@ export class UserService {
     const receiver = await this.usersRepository.findOne({
       where: { id: dto.receiverId }
     })
+    if (!sender) throw new BadRequestException("Ты похоже перепутал")
     if (!receiver) throw new BadRequestException("Получатель не найден")
     await this.friendRequestRepository.delete({
       sender,
@@ -134,6 +141,18 @@ export class UserService {
     return await this.friendRequestRepository.delete({
       id: requestId
     })
+  }
+
+  async deleteFriend(userId: number, friendId: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ["friends"]
+    })
+    const friend = await this.usersRepository.findOne({
+      where: { id: friendId }
+    })
+    user.friends = user.friends.filter((f) => f.id !== friend.id)
+    await this.usersRepository.save(user)
   }
 
   async createDeed(dto: DeedDto) {

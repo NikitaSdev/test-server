@@ -66,7 +66,7 @@ export class Deed {
   id: number
   @ManyToOne(() => User, (user) => user.deeds)
   user: User
-  @Column({ default: "Перевел бабушку через дорогу" })
+  @Column({ default: "" })
   title: string
   @Column({ default: "" })
   description: string
