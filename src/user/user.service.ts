@@ -66,7 +66,12 @@ export class UserService {
         deeds
       }
     } else {
-      return { name: anotherUser.name, description: anotherUser.description }
+      return {
+        name: anotherUser.name,
+        description: anotherUser.description,
+        avatarURL: anotherUser.avatarURL,
+        wrapperURL: anotherUser.wrapperURL
+      }
     }
   }
   async getUsersCount() {
