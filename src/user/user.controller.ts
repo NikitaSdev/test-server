@@ -84,7 +84,7 @@ export class UserController {
   async createDeed(@Body() dto: DeedDto) {
     return this.userService.createDeed(dto)
   }
-  @Get("deed")
+  @Post("get-deeds")
   async getDeeds(@Body("userId") userId: number) {
     return this.userService.getDeed(userId)
   }

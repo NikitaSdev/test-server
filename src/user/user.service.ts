@@ -58,7 +58,6 @@ export class UserService {
       const deeds = await this.deedRepository.find({
         where: { user: anotherUser }
       })
-      console.log(deeds)
       return {
         name: anotherUser.name,
         description: anotherUser.description,
@@ -187,13 +186,12 @@ export class UserService {
       }
     })
     if (!deed) throw new BadRequestException("Доброе дело не найдено")
-    return await this.deedRepository.update(deed, {
-      description: dto.description || deed.description,
-      title: dto.title || deed.title
-    })
+    deed.description = dto.description || deed.description
+    deed.title = dto.title || deed.title
+    return await this.deedRepository.save(deed)
   }
   async getDeed(userId: number) {
-    const user = await this.usersRepository.findOne({ where: { id: userId } })
+    const user = await this.usersRepository.find({ where: { id: userId } })
     if (!user) throw new BadRequestException("Пользователь не найден")
     return await this.deedRepository.find({
       where: { user: user },
