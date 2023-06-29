@@ -212,7 +212,6 @@ export class UserService {
     user.name = name || user.name
     user.description = description || user.description
 
-    console.log(id)
     return await this.usersRepository.save(user)
   }
 
