@@ -18,6 +18,9 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsString()
   name: string
+  @IsOptional()
+  @IsString()
+  description: string
 }
 export class DeedDto {
   @IsNumber()

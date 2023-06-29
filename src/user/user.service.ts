@@ -62,6 +62,8 @@ export class UserService {
       return {
         name: anotherUser.name,
         description: anotherUser.description,
+        avatarURL: anotherUser.avatarURL,
+        wrapperURL: anotherUser.wrapperURL,
         deeds
       }
     } else {
@@ -123,18 +125,21 @@ export class UserService {
     }
 
     if (user.friends.some((fr) => fr.id === friend.id)) {
-      throw new BadRequestException("Вы уже друзья")
+      await this.friendRequestRepository.delete({
+        sender: friend,
+        receiver: user
+      })
+      return
     }
 
     user.friends.push(friend)
     friend.friends.push(user)
 
-    await this.usersRepository.save([user, friend])
-
     await this.friendRequestRepository.delete({
       sender: friend,
       receiver: user
     })
+    await this.usersRepository.save([user, friend])
   }
 
   async declineFriendRequest(requestId: number) {
@@ -195,14 +200,20 @@ export class UserService {
     return await this.deedRepository.delete({ id: deedId })
   }
   async updateProfile(dto: UpdateProfileDto) {
-    const user = await this.usersRepository.findOne({ where: { id: dto.id } })
-    if (!user) throw new BadRequestException("Пользователь не найден")
+    const { id, wrapperURL, avatarURL, name, description } = dto
 
-    await this.usersRepository.update(user, {
-      wrapperURL: dto.wrapperURL || user.wrapperURL,
-      avatarURL: dto.avatarURL || user.avatarURL,
-      name: dto.name || user.name
-    })
+    const user = await this.usersRepository.findOne({ where: { id } })
+    if (!user) {
+      throw new BadRequestException("Пользователь не найден")
+    }
+
+    user.wrapperURL = wrapperURL || user.wrapperURL
+    user.avatarURL = avatarURL || user.avatarURL
+    user.name = name || user.name
+    user.description = description || user.description
+
+    console.log(id)
+    return await this.usersRepository.save(user)
   }
 
   async delete(id: number) {
